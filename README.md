@@ -1,4 +1,4 @@
-### GETTING STARTED
+# GETTING STARTED
 ``
 npm start
 ``
