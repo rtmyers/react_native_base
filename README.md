@@ -1,3 +1,9 @@
+### GETTING STARTED
+``
+npm start
+``
+
+
 # this repository was initiated with create-react-native-web-app
 
 [![NPM](https://nodei.co/npm/create-react-native-web-app.png)](https://npmjs.org/package/create-react-native-web-app)
