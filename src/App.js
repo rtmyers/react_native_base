@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -8,50 +8,46 @@ import {
 } from 'react-native';
 import './App.css';
 
-class App extends Component {
-  state = {
-		data_list: [],
-		error: null
-	}
+export default () => {
+	const [data_list, setDataList] = useState([]);
+	const [error, setError] = useState(null);
 
-	fetchData = async() => {
+	const curryPipe = (...fn) => fn.reduce((f, g) => (...a) => g(f(...a)));
+
+	const fetchData = async() => {
 		try {
-			const req_payload = await fetch('http://127.0.0.1:8000/api/company');
-			const data = await req_payload.json();
-			this.setState({
-				data_list: data.results,
-				error: null
-			});
+			const req_payload = await fetch('http://localhost:8000/api/companies', { mode: 'no-cors', safe: 'False' });
+			console.log(req_payload);
+			const data = await JSON.stringify(req_payload);
+			console.log('data', data);
+			curryPipe(setError(error), setDataList(data_list));
+			console.log(error, data_list);
 		} catch(err){
 			console.warn(err);
-			this.setState({
-				error: {
+			curryPipe(
+				setError({
 					stack: err,
 					message: err.toString()
-				}
-			});
+				}),
+				setDataList(data_list)
+			);
 		}
 	}
-
-	handleChange = e => this.fetchData();
-
-  render() {
-		return(
-			<View className='container'>
-				<Text className='title row'>Create React Native App</Text>
-				<View className='row button'>
-					<Button style={styles.button} onPress={this.handleChange} title="Fetch Data"/>
-				</View>
-				<Text className='row output'>
-						{
-							this.state.error !== null ?
-								<Text style={styles.error}>{this.state.error.message}</Text> :
-									(this.state.data_list.length > 0 ? JSON.stringify(this.state.data_list) : '')
-						}
-				</Text>
+	return(
+		<View className='container'>
+			<Text className='title row'>Create React Native App</Text>
+			<View className='row button'>
+				<Button style={styles.button} onPress={fetchData} title="Fetch Data"/>
 			</View>
-		);
-  }
+			<Text className='row output'>
+					{
+						error !== null ?
+							<Text style={styles.error}>{error.message}</Text> :
+								(data_list.length > 0 ? data_list : 'Click to load data!')
+					}
+			</Text>
+		</View>
+	);
 }
 
 const styles = StyleSheet.create({
@@ -75,10 +71,3 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
-
-let hotWrapper = () => () => App;
-if (Platform.OS === 'web') {
-  const { hot } = require('react-hot-loader');
-  hotWrapper = hot;
-}
-export default hotWrapper(module)(App);
